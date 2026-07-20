@@ -6,6 +6,7 @@ enum CharacterType { BIT, BYTE }
 
 signal character_selected(type: CharacterType)
 signal score_updated(new_score: int)
+@warning_ignore("unused_signal")
 signal game_over
 
 var selected_character: CharacterType = CharacterType.BIT
