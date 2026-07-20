@@ -224,51 +224,56 @@ Paleta de colores recomendada: **NES** o **GameBoy** (4-8 colores base)
 
 ## Desglose de Tareas
 
-### Fase 1 — Configuración del Proyecto
-- [ ] **T01** Crear proyecto en Godot 4.x
-- [ ] **T02** Configurar resolución y filtrado para pixel art (Nearest)
-- [ ] **T03** Crear estructura de carpetas del proyecto
-- [ ] **T04** Configurar Input Map (move_left, move_right, jump, attack)
-- [ ] **T05** Configurar Autoloads: GameManager, SceneManager, AudioManager
+### Fase 1 — Configuración del Proyecto y Entorno
+- [ ] **T01** Crear proyecto base en Godot 4.x
+- [ ] **T02** Configurar resolución retro (320x180), estiramiento canvas_items y filtrado pixel art (Nearest)
+- [ ] **T03** Crear estructura de carpetas del proyecto (`assets/`, `scenes/`, `scripts/`, `resources/`)
+- [ ] **T04** Configurar Input Map con soporte para Teclado y Gamepad/Joystick (move_left, move_right, jump, attack)
+- [ ] **T05** Configurar Autoloads principales: `GameManager`, `SceneManager`, `AudioManager`, `SaveManager`
 
-### Fase 2 — Jugador y Movimiento
-- [ ] **T06** Crear escena `player.tscn` con nodo CharacterBody2D
-- [ ] **T07** Implementar movimiento horizontal con aceleración/fricción
-- [ ] **T08** Implementar salto con gravedad y coyote time (5-6 frames)
-- [ ] **T09** Crear máquina de estados básica (IDLE, RUN, JUMP, FALL)
-- [ ] **T10** Integrar AnimationPlayer con sprites 8-bit del jugador
-- [ ] **T11** Implementar sistema de vida y estado HURT/DEAD
-- [ ] **T12** Añadir invencibilidad temporal tras recibir daño (flicker effect)
+### Fase 2 — Jugador y Mecánicas de Movimiento
+- [ ] **T06** Crear escena `player.tscn` con nodo `CharacterBody2D`, `CollisionShape2D` y `Sprite2D`
+- [ ] **T07** Implementar movimiento horizontal con física personalizable (aceleración, fricción, velocidad máx)
+- [ ] **T08** Implementar salto variable por duración de tecla, gravedad y Coyote Time (5-6 frames) + Jump Buffering
+- [ ] **T09** Crear máquina de estados finitos (FSM) para el jugador (IDLE, RUN, JUMP, FALL, ATTACK, HURT, DEAD)
+- [ ] **T10** Configurar `AnimationPlayer` y animaciones de sprites 8-bit (Idle, Run, Jump, Fall, Hurt)
+- [ ] **T11** Implementar sistema de HP del jugador y lógica de daño en Hurtbox
+- [ ] **T12** Añadir invencibilidad temporal tras recibir daño con efecto parpadeo (flicker) y Knockback
 
-### Fase 3 — Mundo y Niveles
-- [ ] **T13** Configurar TileMap con tileset 16x16
-- [ ] **T14** Construir nivel de prueba (`level_01.tscn`)
-- [ ] **T15** Configurar Camera2D con límites y seguimiento suave
-- [ ] **T16** Agregar fondo con Parallax (1-2 capas)
-- [ ] **T17** Crear trigger de salida de nivel (ExitDoor)
-- [ ] **T18** Implementar punto de spawn del jugador
+### Fase 3 — Sistema de Combate y Proyectiles
+- [ ] **T13** Implementar área de ataque melee (`AttackBox`) con activación por frame en animaciones
+- [ ] **T14** Implementar soporte para ataques con proyectiles 8-bit (opcional para jugador o enemigos)
+- [ ] **T15** Añadir mecánica de rebote al pisar enemigos (Pogo Jump / Stomp Mechanic)
 
-### Fase 4 — Enemigos
-- [ ] **T19** Crear clase base `enemy_base.gd` con patrulla simple
-- [ ] **T20** Implementar hitbox/hurtbox para interacción jugador-enemigo
-- [ ] **T21** Crear primer enemigo (ej: slime que patrulla plataforma)
-- [ ] **T22** Añadir lógica: enemigo muere al ser pisado (salto encima)
+### Fase 4 — Mundo, Niveles y Checkpoints
+- [ ] **T16** Configurar `TileMap` / `TileMapLayer` en Godot 4 con colisiones 16x16 px
+- [ ] **T17** Construir nivel de pruebas `level_01.tscn` con plataformas, obstáculos y zonas de peligro (Hazard Zones / Spikes)
+- [ ] **T18** Configurar `Camera2D` con límites de nivel, seguimiento suave y zonas muertas (Dead Zones)
+- [ ] **T19** Crear sistema de Parallax Background (1-3 capas con velocidad diferencial)
+- [ ] **T20** Implementar sistema de Checkpoints mid-level (banderas/faroles) y Respawn Point
+- [ ] **T21** Crear disparador de fin de nivel (`ExitDoor`) para cargar el siguiente mapa
 
-### Fase 5 — UI y Audio
-- [ ] **T23** Crear HUD con corazones y puntuación
-- [ ] **T24** Conectar HUD a señales del GameManager
-- [ ] **T25** Crear menú principal (`main_menu.tscn`)
-- [ ] **T26** Pantalla de Game Over con opción de reiniciar
-- [ ] **T27** Integrar música de fondo (formato .ogg)
-- [ ] **T28** Integrar efectos de sonido (salto, daño, moneda)
+### Fase 5 — Enemigos e IA Base
+- [ ] **T22** Crear clase base extensible `enemy_base.gd` con patrulla horizontal y colisión con paredes/bordes
+- [ ] **T23** Configurar Hitbox y Hurtbox en enemigos para detección de daño bilateral
+- [ ] **T24** Crear variantes de enemigos (ej: Slime de patrulla terrestre, Murciélago volador simple)
+- [ ] **T25** Añadir efectos de muerte de enemigos (animación de destrucción, feedback visual y sfx)
 
-### Fase 6 — Pulido y Extras
-- [ ] **T29** Partículas o efectos al destruir enemigos / recoger ítems
-- [ ] **T30** Añadir coleccionables (monedas, power-ups)
-- [ ] **T31** Implementar pausa del juego
-- [ ] **T32** Transiciones de escena con fade in/out
-- [ ] **T33** Ajuste de dificultad y balance del nivel 01
-- [ ] **T34** Build de exportación para Windows/Web
+### Fase 6 — UI, Audio y Persistencia
+- [ ] **T26** Diseñar HUD retro con representación visual de corazones, score e indicador de nivel
+- [ ] **T27** Conectar señales de `GameManager` al HUD (`hp_changed`, `score_updated`)
+- [ ] **T28** Crear pantalla de Menú Principal (`main_menu.tscn`) y Menú de Pausa en partida
+- [ ] **T29** Implementar `SaveManager` para guardar/cargar récord de puntuación, nivel alcanzado y ajustes en `user://savegame.json`
+- [ ] **T30** Integrar reproductor de música chip-tune en loop (`AudioManager`)
+- [ ] **T31** Implementar buses de audio (Master, BGM, SFX) con control de volumen en la UI
+
+### Fase 7 — Game Juice, Pulido y CI/CD
+- [ ] **T32** Agregar Screen Shake (sacudida de cámara) en impactos fuertes o explosiones
+- [ ] **T33** Agregar efectos de Squash & Stretch en los saltos y aterrizajes del jugador
+- [ ] **T34** Implementar partículas retro CPUParticles2D (polvo al correr/saltar, destellos al recolectar monedas)
+- [ ] **T35** Transiciones de pantalla entre niveles con efecto Fade-In / Fade-Out y Wipes retro
+- [ ] **T36** Configurar flujo de CI/CD con GitHub Actions para validación de código y exportación automática a HTML5 / Web y Executable Windows
+
 
 ---
 
