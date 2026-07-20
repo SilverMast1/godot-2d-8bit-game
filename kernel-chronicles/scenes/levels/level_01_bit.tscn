@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://clevelbit0001"]
+
+[ext_resource type="PackedScene" path="res://scenes/characters/player_bit.tscn" id="1_pbit"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
+size = Vector2(600, 32)
+
+[node name="Level01Bit" type="Node2D"]
+
+[node name="PlayerBit" parent="." instance=ExtResource("1_pbit")]
+position = Vector2(60, 100)
+
+[node name="Ground" type="StaticBody2D" parent="."]
+position = Vector2(200, 160)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
+shape = SubResource("RectangleShape2D_ground")

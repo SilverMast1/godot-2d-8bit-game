@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://cbyteplayer0002"]
+
+[ext_resource type="Script" path="res://scripts/player/player_byte.gd" id="1_byte"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/byte.png" id="2_byte_tex"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_byte"]
+size = Vector2(24, 28)
+
+[node name="PlayerByte" type="CharacterBody2D"]
+script = ExtResource("1_byte")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_byte_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_byte")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="HurtBox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
+shape = SubResource("RectangleShape2D_byte")
