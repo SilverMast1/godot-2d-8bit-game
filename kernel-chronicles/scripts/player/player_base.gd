@@ -192,7 +192,8 @@ func update_animations() -> void:
 		State.DEAD: anim_name = "dead"
 
 	if anim_name != "" and animation_player.has_animation(anim_name):
-		animation_player.play(anim_name)
+		if animation_player.current_animation != anim_name:
+			animation_player.play(anim_name)
 
 func take_damage(amount: int, knockback_dir: Vector2 = Vector2.ZERO) -> void:
 	if is_invincible or current_state == State.DEAD:
