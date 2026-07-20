@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Kernel Chronicles"
-run/main_scene="uid://cl2tfq8wd80ha"
+run/main_scene="res://scenes/ui/character_selection.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -27,6 +27,33 @@ window/size/viewport_height=180
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
+
+[input]
+
+move_left={
+"deadzone": 0.5,
+"events": [SubResource("InputEventKey_left1"), SubResource("InputEventKey_left2")]
+}
+move_right={
+"deadzone": 0.5,
+"events": [SubResource("InputEventKey_right1"), SubResource("InputEventKey_right2")]
+}
+jump={
+"deadzone": 0.5,
+"events": [SubResource("InputEventKey_jump1"), SubResource("InputEventKey_jump2")]
+}
+attack={
+"deadzone": 0.5,
+"events": [SubResource("InputEventKey_attack1"), SubResource("InputEventKey_attack2")]
+}
+shield={
+"deadzone": 0.5,
+"events": [SubResource("InputEventKey_shield1")]
+}
+special_attack={
+"deadzone": 0.5,
+"events": [SubResource("InputEventKey_special1")]
+}
 
 [layer_names]
 

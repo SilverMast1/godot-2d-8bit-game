@@ -1,16 +1,14 @@
 extends Control
 
-## CharacterSelection: Controlador UI de pantalla completa split-screen para Bit y Byte.
+## CharacterSelection: Controlador UI split-screen simple y libre de errores.
 
 @onready var bit_card: Control = $BitCard
 @onready var byte_card: Control = $ByteCard
 
-var current_selection: GameManager.CharacterType = GameManager.CharacterType.BIT
+var current_selection: int = 0 # 0 = BIT, 1 = BYTE
 var is_confirming: bool = false
 
 func _ready() -> void:
-	focus_mode = FOCUS_ALL
-	grab_focus()
 	update_ui_highlight()
 
 func _input(event: InputEvent) -> void:
@@ -27,18 +25,15 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 
 func toggle_selection() -> void:
-	if current_selection == GameManager.CharacterType.BIT:
-		current_selection = GameManager.CharacterType.BYTE
-	else:
-		current_selection = GameManager.CharacterType.BIT
+	current_selection = 1 - current_selection
 	update_ui_highlight()
 
 func update_ui_highlight() -> void:
 	if bit_card and byte_card:
-		if current_selection == GameManager.CharacterType.BIT:
+		if current_selection == 0: # BIT
 			bit_card.modulate = Color(1.0, 1.0, 1.0, 1.0)
 			byte_card.modulate = Color(0.25, 0.25, 0.35, 0.5)
-		else:
+		else: # BYTE
 			bit_card.modulate = Color(0.25, 0.25, 0.35, 0.5)
 			byte_card.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
@@ -46,5 +41,7 @@ func confirm_selection() -> void:
 	if is_confirming:
 		return
 	is_confirming = true
-	GameManager.select_character(current_selection)
-	SceneManager.load_level_for_character(current_selection)
+	if GameManager:
+		GameManager.select_character(current_selection)
+	if SceneManager:
+		SceneManager.load_level_for_character(current_selection)
