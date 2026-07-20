@@ -2,23 +2,28 @@ class_name PlayerBase
 extends CharacterBody2D
 
 ## Clase Base FSM para los personajes jugables (Bit y Byte).
+## Maneja los estados: IDLE, RUN, JUMP, FALL, ATTACK, SHIELD, SPECIAL_ATTACK, HURT, DEAD.
 
-enum State { IDLE, RUN, JUMP, FALL, ABILITY, HURT, DEAD }
+enum State { IDLE, RUN, JUMP, FALL, ATTACK, SHIELD, SPECIAL_ATTACK, HURT, DEAD }
 
 signal hp_changed(current_hp: int, max_hp: int)
+signal energy_changed(current_energy: float, max_energy: float)
 signal state_changed(new_state: State)
 signal died
 
 @export_group("Stats Base")
 @export var max_hp: int = 3
+@export var max_energy: float = 100.0
 @export var speed: float = 150.0
 @export var jump_velocity: float = -320.0
 @export var acceleration: float = 1000.0
 @export var friction: float = 1200.0
 @export var invincibility_duration: float = 1.2
+@export var shield_damage_reduction: float = 1.0 # 1.0 = 100% bloqueo
 
 var current_state: State = State.IDLE
 var current_hp: int
+var current_energy: float
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity", 800.0)
 var is_invincible: bool = false
 var invincibility_timer: float = 0.0
@@ -29,7 +34,9 @@ var invincibility_timer: float = 0.0
 
 func _ready() -> void:
 	current_hp = max_hp
+	current_energy = max_energy
 	hp_changed.emit(current_hp, max_hp)
+	energy_changed.emit(current_energy, max_energy)
 
 func _physics_process(delta: float) -> void:
 	if current_state == State.DEAD:
@@ -37,12 +44,17 @@ func _physics_process(delta: float) -> void:
 
 	handle_invincibility(delta)
 	apply_gravity(delta)
+	regenerate_energy(delta)
 
 	match current_state:
 		State.IDLE, State.RUN, State.JUMP, State.FALL:
 			handle_movement(delta)
-		State.ABILITY:
-			handle_ability_state(delta)
+		State.ATTACK:
+			handle_attack_state(delta)
+		State.SHIELD:
+			handle_shield_state(delta)
+		State.SPECIAL_ATTACK:
+			handle_special_attack_state(delta)
 		State.HURT:
 			handle_hurt_state(delta)
 
@@ -53,6 +65,11 @@ func _physics_process(delta: float) -> void:
 func apply_gravity(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y += gravity * delta
+
+func regenerate_energy(delta: float) -> void:
+	if current_state != State.SPECIAL_ATTACK and current_energy < max_energy:
+		current_energy = min(max_energy, current_energy + 15.0 * delta)
+		energy_changed.emit(current_energy, max_energy)
 
 func handle_movement(delta: float) -> void:
 	var direction := Input.get_axis("move_left", "move_right")
@@ -66,23 +83,57 @@ func handle_movement(delta: float) -> void:
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		perform_jump()
 
+	# Triggers de acciones (Ataque, Escudo, Especial)
 	if Input.is_action_just_pressed("attack"):
-		trigger_primary_ability()
+		trigger_attack()
+	elif Input.is_action_pressed("shield"):
+		trigger_shield()
+	elif Input.is_action_just_pressed("special_attack"):
+		trigger_special_attack()
 
 func perform_jump() -> void:
 	velocity.y = jump_velocity
 	change_state(State.JUMP)
 
-func trigger_primary_ability() -> void:
-	change_state(State.ABILITY)
-	primary_ability()
+# --- ACCIONES PRINCIPALES ---
+func trigger_attack() -> void:
+	change_state(State.ATTACK)
+	perform_attack()
 
-## Método polimórfico a sobreescribir por subclases (Bit / Byte)
-func primary_ability() -> void:
+func trigger_shield() -> void:
+	change_state(State.SHIELD)
+	perform_shield()
+
+func trigger_special_attack() -> void:
+	if current_energy >= 30.0: # Consume energía para el ataque especial
+		current_energy -= 30.0
+		energy_changed.emit(current_energy, max_energy)
+		change_state(State.SPECIAL_ATTACK)
+		perform_special_attack()
+
+## Métodos polimórficos a sobreescribir por subclases (Bit / Byte)
+func perform_attack() -> void:
 	pass
 
-func handle_ability_state(_delta: float) -> void:
-	# Retornar a IDLE cuando termina la animación o acción
+func perform_shield() -> void:
+	pass
+
+func perform_special_attack() -> void:
+	pass
+
+# --- MANEJADORES DE ESTADO EN EJECUCIÓN ---
+func handle_attack_state(delta: float) -> void:
+	velocity.x = move_toward(velocity.x, 0.0, friction * delta)
+	if animation_player and not animation_player.is_playing():
+		change_state(State.IDLE)
+
+func handle_shield_state(delta: float) -> void:
+	velocity.x = move_toward(velocity.x, 0.0, friction * delta)
+	if not Input.is_action_pressed("shield"):
+		change_state(State.IDLE)
+
+func handle_special_attack_state(delta: float) -> void:
+	velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 	if animation_player and not animation_player.is_playing():
 		change_state(State.IDLE)
 
@@ -108,7 +159,7 @@ func change_state(new_state: State) -> void:
 	state_changed.emit(new_state)
 
 func update_state_machine() -> void:
-	if current_state in [State.ABILITY, State.HURT, State.DEAD]:
+	if current_state in [State.ATTACK, State.SHIELD, State.SPECIAL_ATTACK, State.HURT, State.DEAD]:
 		return
 
 	if not is_on_floor():
@@ -131,9 +182,15 @@ func update_animations() -> void:
 			animation_player.play("jump")
 		State.FALL:
 			animation_player.play("fall")
-		State.ABILITY:
-			if animation_player.has_animation("ability"):
-				animation_player.play("ability")
+		State.ATTACK:
+			if animation_player.has_animation("attack"):
+				animation_player.play("attack")
+		State.SHIELD:
+			if animation_player.has_animation("shield"):
+				animation_player.play("shield")
+		State.SPECIAL_ATTACK:
+			if animation_player.has_animation("special_attack"):
+				animation_player.play("special_attack")
 		State.HURT:
 			if animation_player.has_animation("hurt"):
 				animation_player.play("hurt")
@@ -145,13 +202,22 @@ func take_damage(amount: int, knockback_dir: Vector2 = Vector2.ZERO) -> void:
 	if is_invincible or current_state == State.DEAD:
 		return
 
+	# Si está en estado de escudo, absorbe o reduce el daño
+	if current_state == State.SHIELD:
+		var final_damage = int(amount * (1.0 - shield_damage_reduction))
+		if final_damage <= 0:
+			# Bloqueo perfecto (parry/deflect)
+			return
+		amount = final_damage
+
 	current_hp -= amount
 	hp_changed.emit(current_hp, max_hp)
 	is_invincible = true
 	invincibility_timer = invincibility_duration
 
 	if knockback_dir != Vector2.ZERO:
-		velocity = knockback_dir * 180.0
+		var knockback_force = 100.0 if current_state == State.SHIELD else 180.0
+		velocity = knockback_dir * knockback_force
 
 	if current_hp <= 0:
 		die()

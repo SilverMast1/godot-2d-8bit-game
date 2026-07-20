@@ -1,30 +1,40 @@
 class_name PlayerByte
 extends PlayerBase
 
-## Personaje 'Byte': Tanque destructivo. Acción especial: Ground Smash.
+## Personaje 'Byte': Tanque destructivo.
+## Ataque: Heavy Smash | Escudo: Iron Guard | Especial: Seismic Quake
 
-@export var smash_duration: float = 0.4
-@export var smash_radius: float = 32.0
+@export var quake_duration: float = 0.5
+@export var quake_radius: float = 64.0
 
-var is_smashing: bool = false
-var smash_timer: float = 0.0
+var is_quaking: bool = false
+var quake_timer: float = 0.0
 
 func _ready() -> void:
 	max_hp = 5
 	speed = 110.0
 	jump_velocity = -260.0
+	shield_damage_reduction = 0.85 # 85% reducción de daño + resistencia a retroceso
 	super._ready()
 
-# Habilidad especial de Byte: Ground Smash
-func primary_ability() -> void:
-	is_smashing = true
-	smash_timer = smash_duration
+# 1. Ataque Básico: Heavy Smash Punch
+func perform_attack() -> void:
+	velocity.x = 0.0
+
+# 2. Escudo: Iron Guard (Modo Tanque Blindado)
+func perform_shield() -> void:
+	velocity.x = 0.0
+
+# 3. Ataque Especial: Seismic Quake (Terremoto de área)
+func perform_special_attack() -> void:
+	is_quaking = true
+	quake_timer = quake_duration
 	velocity.x = 0.0
 	if not is_on_floor():
-		velocity.y = 400.0 # Caída pesada si está en el aire
+		velocity.y = 500.0 # Caída pesada aplastante
 
-func handle_ability_state(delta: float) -> void:
-	smash_timer -= delta
-	if smash_timer <= 0.0:
-		is_smashing = false
+func handle_special_attack_state(delta: float) -> void:
+	quake_timer -= delta
+	if quake_timer <= 0.0:
+		is_quaking = false
 		change_state(State.IDLE)
