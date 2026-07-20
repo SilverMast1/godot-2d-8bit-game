@@ -1,0 +1,18 @@
+# Godot 4.x specific ignores
+.godot/
+*.import
+export_presets.cfg
+
+# Imported translations
+*.translation
+
+# Mono / C# builds
+.mono/
+data_*/
+mono_project/
+.vs/
+
+# OS / Editor generated
+.DS_Store
+Thumbs.db
+*.tmp
