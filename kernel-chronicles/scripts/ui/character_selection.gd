@@ -1,32 +1,20 @@
 extends Control
 
 ## CharacterSelection: Controlador UI de pantalla completa split-screen para Bit y Byte.
-## Garantiza lectura inmediata de Flechas, WASD (A/D), Espacio y Enter.
 
 @onready var bit_card: Control = $BitCard
 @onready var byte_card: Control = $ByteCard
 
 var current_selection: GameManager.CharacterType = GameManager.CharacterType.BIT
-var can_input: bool = true
+var is_confirming: bool = false
 
 func _ready() -> void:
-	# Asegurar que ningún nodo hijo intercepte el foco del teclado
 	focus_mode = FOCUS_ALL
 	grab_focus()
 	update_ui_highlight()
 
-func _process(_delta: float) -> void:
-	if not can_input:
-		return
-
-	if Input.is_action_just_pressed("ui_left") or Input.is_action_just_pressed("ui_right") \
-	or Input.is_action_just_pressed("move_left") or Input.is_action_just_pressed("move_right"):
-		toggle_selection()
-	elif Input.is_action_just_pressed("ui_accept") or Input.is_action_just_pressed("attack"):
-		confirm_selection()
-
 func _input(event: InputEvent) -> void:
-	if not can_input:
+	if is_confirming:
 		return
 
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -55,6 +43,8 @@ func update_ui_highlight() -> void:
 			byte_card.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 func confirm_selection() -> void:
-	can_input = false
+	if is_confirming:
+		return
+	is_confirming = true
 	GameManager.select_character(current_selection)
 	SceneManager.load_level_for_character(current_selection)

@@ -16,9 +16,9 @@ func load_level_for_character(character_type: int) -> void:
 
 func change_scene_to(target_path: String) -> void:
 	if ResourceLoader.exists(target_path):
-		get_tree().change_scene_to_file(target_path)
+		get_tree().call_deferred("change_scene_to_file", target_path)
 	else:
 		push_warning("La escena no existe aún en la ruta: " + target_path)
 
 func reload_current_scene() -> void:
-	get_tree().reload_current_scene()
+	get_tree().call_deferred("reload_current_scene")

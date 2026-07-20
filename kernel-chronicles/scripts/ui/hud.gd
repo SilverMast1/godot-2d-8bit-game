@@ -1,9 +1,9 @@
 extends CanvasLayer
 
-## HUD Controller: Administra los corazones de HP, barra de energía y contador de Score.
+## HUD Controller: Administra la salud (HP), energía y puntuación en pantalla.
 
 @onready var hp_label: Label = $MarginContainer/VBoxContainer/HPLabel
-@onready var energy_bar: TextureProgressBar = $MarginContainer/VBoxContainer/EnergyBar
+@onready var energy_bar: ProgressBar = $MarginContainer/VBoxContainer/EnergyBar
 @onready var score_label: Label = $MarginContainer/VBoxContainer/ScoreLabel
 
 func _ready() -> void:
@@ -13,8 +13,10 @@ func _ready() -> void:
 
 func setup_player(player: PlayerBase) -> void:
 	if player:
-		player.hp_changed.connect(_on_hp_changed)
-		player.energy_changed.connect(_on_energy_changed)
+		if not player.hp_changed.is_connected(_on_hp_changed):
+			player.hp_changed.connect(_on_hp_changed)
+		if not player.energy_changed.is_connected(_on_energy_changed):
+			player.energy_changed.connect(_on_energy_changed)
 		_on_hp_changed(player.current_hp, player.max_hp)
 		_on_energy_changed(player.current_energy, player.max_energy)
 
