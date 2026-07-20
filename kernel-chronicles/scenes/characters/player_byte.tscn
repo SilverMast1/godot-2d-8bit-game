@@ -1,102 +1,23 @@
-[gd_scene load_steps=10 format=3 uid="uid://cbyteplayer0002"]
+[gd_scene load_steps=4 format=3 uid="uid://cbyteplayer0002"]
 
 [ext_resource type="Script" path="res://scripts/player/player_byte.gd" id="1_byte"]
-[ext_resource type="Texture2D" path="res://assets/sprites/player/byte_sheet.png" id="2_bytesheet"]
+[ext_resource type="SpriteFrames" path="res://assets/sprites/byte/byte_frames.tres" id="2_byteframes"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_byte"]
 size = Vector2(24, 28)
-
-[sub_resource type="Animation" id="Animation_idle"]
-resource_name = "idle"
-length = 0.3
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [0]
-}
-
-[sub_resource type="Animation" id="Animation_run"]
-resource_name = "run"
-length = 0.3
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.15),
-"transitions": PackedFloat32Array(1, 1),
-"update": 1,
-"values": [0, 1]
-}
-
-[sub_resource type="Animation" id="Animation_jump"]
-resource_name = "jump"
-length = 0.2
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [2]
-}
-
-[sub_resource type="Animation" id="Animation_attack"]
-resource_name = "attack"
-length = 0.3
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.15),
-"transitions": PackedFloat32Array(1, 1),
-"update": 1,
-"values": [3, 0]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_byte"]
-_data = {
-"attack": SubResource("Animation_attack"),
-"fall": SubResource("Animation_jump"),
-"idle": SubResource("Animation_idle"),
-"jump": SubResource("Animation_jump"),
-"run": SubResource("Animation_run")
-}
 
 [node name="PlayerByte" type="CharacterBody2D"]
 collision_layer = 2
 collision_mask = 13
 script = ExtResource("1_byte")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("2_bytesheet")
-hframes = 4
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_byteframes")
+animation = &"idle"
+autoplay = "idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_byte")
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-"": SubResource("AnimationLibrary_byte")
-}
 
 [node name="HurtBox" type="Area2D" parent="."]
 collision_layer = 0

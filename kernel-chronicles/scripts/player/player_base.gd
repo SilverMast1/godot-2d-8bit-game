@@ -2,7 +2,7 @@ class_name PlayerBase
 extends CharacterBody2D
 
 ## Clase Base FSM para los personajes jugables (Bit y Byte).
-## Maneja los estados: IDLE, RUN, JUMP, FALL, ATTACK, SHIELD, SPECIAL_ATTACK, HURT, DEAD.
+## Soporta AnimatedSprite2D (SpriteFrames de Kiro) y AnimationPlayer.
 
 enum State { IDLE, RUN, JUMP, FALL, ATTACK, SHIELD, SPECIAL_ATTACK, HURT, DEAD }
 
@@ -28,9 +28,10 @@ var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity", 8
 var is_invincible: bool = false
 var invincibility_timer: float = 0.0
 
-@onready var sprite: Sprite2D = $Sprite2D
-@onready var animation_player: AnimationPlayer = $AnimationPlayer
-@onready var hurtbox: Area2D = $HurtBox
+@onready var sprite: Sprite2D = $Sprite2D if has_node("Sprite2D") else null
+@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D if has_node("AnimatedSprite2D") else null
+@onready var animation_player: AnimationPlayer = $AnimationPlayer if has_node("AnimationPlayer") else null
+@onready var hurtbox: Area2D = $HurtBox if has_node("HurtBox") else null
 
 func _ready() -> void:
 	current_hp = max_hp
@@ -81,8 +82,7 @@ func handle_movement(delta: float) -> void:
 
 	if direction != 0.0:
 		velocity.x = move_toward(velocity.x, direction * speed, acceleration * delta)
-		if sprite:
-			sprite.flip_h = direction < 0
+		set_flip_h(direction < 0)
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 
@@ -96,6 +96,12 @@ func handle_movement(delta: float) -> void:
 		trigger_shield()
 	elif Input.is_action_just_pressed("special_attack") or Input.is_key_pressed(KEY_L) or Input.is_key_pressed(KEY_V):
 		trigger_special_attack()
+
+func set_flip_h(flipped: bool) -> void:
+	if sprite:
+		sprite.flip_h = flipped
+	if animated_sprite:
+		animated_sprite.flip_h = flipped
 
 func perform_jump() -> void:
 	velocity.y = jump_velocity
@@ -129,7 +135,7 @@ func perform_special_attack() -> void:
 # --- MANEJADORES DE ESTADO EN EJECUCIÓN ---
 func handle_attack_state(delta: float) -> void:
 	velocity.x = move_toward(velocity.x, 0.0, friction * delta)
-	if animation_player and not animation_player.is_playing():
+	if is_animation_finished():
 		change_state(State.IDLE)
 
 func handle_shield_state(delta: float) -> void:
@@ -140,23 +146,31 @@ func handle_shield_state(delta: float) -> void:
 
 func handle_special_attack_state(delta: float) -> void:
 	velocity.x = move_toward(velocity.x, 0.0, friction * delta)
-	if animation_player and not animation_player.is_playing():
+	if is_animation_finished():
 		change_state(State.IDLE)
 
 func handle_hurt_state(delta: float) -> void:
 	velocity.x = move_toward(velocity.x, 0.0, friction * delta)
-	if animation_player and not animation_player.is_playing():
+	if is_animation_finished():
 		change_state(State.IDLE)
+
+func is_animation_finished() -> bool:
+	if animated_sprite and not animated_sprite.is_playing():
+		return true
+	if animation_player and not animation_player.is_playing():
+		return true
+	return false
 
 func handle_invincibility(delta: float) -> void:
 	if is_invincible:
 		invincibility_timer -= delta
-		if sprite:
-			sprite.modulate.a = 0.4 if int(invincibility_timer * 10) % 2 == 0 else 1.0
+		var alpha_val = 0.4 if int(invincibility_timer * 10) % 2 == 0 else 1.0
+		if sprite: sprite.modulate.a = alpha_val
+		if animated_sprite: animated_sprite.modulate.a = alpha_val
 		if invincibility_timer <= 0.0:
 			is_invincible = false
-			if sprite:
-				sprite.modulate.a = 1.0
+			if sprite: sprite.modulate.a = 1.0
+			if animated_sprite: animated_sprite.modulate.a = 1.0
 
 func change_state(new_state: State) -> void:
 	if current_state == new_state or current_state == State.DEAD:
@@ -176,9 +190,6 @@ func update_state_machine() -> void:
 		change_state(State.IDLE)
 
 func update_animations() -> void:
-	if not animation_player:
-		return
-
 	var anim_name: String = ""
 	match current_state:
 		State.IDLE: anim_name = "idle"
@@ -186,14 +197,19 @@ func update_animations() -> void:
 		State.JUMP: anim_name = "jump"
 		State.FALL: anim_name = "fall"
 		State.ATTACK: anim_name = "attack"
-		State.SHIELD: anim_name = "shield"
-		State.SPECIAL_ATTACK: anim_name = "special_attack"
+		State.SHIELD: anim_name = "dash"
+		State.SPECIAL_ATTACK: anim_name = "dash"
 		State.HURT: anim_name = "hurt"
-		State.DEAD: anim_name = "dead"
+		State.DEAD: anim_name = "death"
 
-	if anim_name != "" and animation_player.has_animation(anim_name):
-		if animation_player.current_animation != anim_name:
-			animation_player.play(anim_name)
+	if animated_sprite and animated_sprite.sprite_frames:
+		if animated_sprite.sprite_frames.has_animation(anim_name):
+			if animated_sprite.animation != anim_name or not animated_sprite.is_playing():
+				animated_sprite.play(anim_name)
+	elif animation_player:
+		if anim_name != "" and animation_player.has_animation(anim_name):
+			if animation_player.current_animation != anim_name:
+				animation_player.play(anim_name)
 
 func take_damage(amount: int, knockback_dir: Vector2 = Vector2.ZERO) -> void:
 	if is_invincible or current_state == State.DEAD:
@@ -222,7 +238,9 @@ func take_damage(amount: int, knockback_dir: Vector2 = Vector2.ZERO) -> void:
 func die() -> void:
 	change_state(State.DEAD)
 	died.emit()
-	if animation_player and animation_player.has_animation("dead"):
+	if animated_sprite and animated_sprite.sprite_frames and animated_sprite.sprite_frames.has_animation("death"):
+		animated_sprite.play("death")
+	elif animation_player and animation_player.has_animation("dead"):
 		animation_player.play("dead")
 	else:
 		queue_free()
