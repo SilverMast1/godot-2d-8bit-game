@@ -32,27 +32,27 @@ window/stretch/mode="canvas_items"
 
 move_left={
 "deadzone": 0.5,
-"events": [SubResource("InputEventKey_left1"), SubResource("InputEventKey_left2")]
+"events": []
 }
 move_right={
 "deadzone": 0.5,
-"events": [SubResource("InputEventKey_right1"), SubResource("InputEventKey_right2")]
+"events": []
 }
 jump={
 "deadzone": 0.5,
-"events": [SubResource("InputEventKey_jump1"), SubResource("InputEventKey_jump2")]
+"events": []
 }
 attack={
 "deadzone": 0.5,
-"events": [SubResource("InputEventKey_attack1"), SubResource("InputEventKey_attack2")]
+"events": []
 }
 shield={
 "deadzone": 0.5,
-"events": [SubResource("InputEventKey_shield1")]
+"events": []
 }
 special_attack={
 "deadzone": 0.5,
-"events": [SubResource("InputEventKey_special1")]
+"events": []
 }
 
 [layer_names]
