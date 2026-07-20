@@ -1,3 +1,4 @@
+class_name GameManager
 extends Node
 
 ## GameManager: Autoload Singleton para el estado global de Kernel Chronicles.

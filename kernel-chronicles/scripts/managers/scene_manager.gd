@@ -1,3 +1,4 @@
+class_name SceneManager
 extends Node
 
 ## SceneManager: Autoload Singleton para transiciones y enrutamiento dinámico de escenas.
