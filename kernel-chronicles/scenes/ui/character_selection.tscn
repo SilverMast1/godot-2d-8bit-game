@@ -11,104 +11,108 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+focus_mode = 2
 script = ExtResource("1_csel")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="BitCard" type="Control" parent="."]
+layout_mode = 1
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_vertical = 2
+
+[node name="Portrait" type="TextureRect" parent="BitCard"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.06, 0.06, 0.12, 1)
-
-[node name="TitleLabel" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -110.0
-offset_top = 8.0
-offset_right = 110.0
-offset_bottom = 30.0
-grow_horizontal = 2
-theme_override_font_sizes/font_size = 14
-text = "SELECCIONA TU HÉROE"
-horizontal_alignment = 1
-
-[node name="BitCard" type="Control" parent="."]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 18.0
-offset_top = -65.0
-offset_right = 148.0
-offset_bottom = 75.0
-grow_vertical = 2
-
-[node name="Portrait" type="TextureRect" parent="BitCard"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 110.0
-grow_horizontal = 2
 texture = ExtResource("2_pbit")
 expand_mode = 1
-stretch_mode = 5
+
+[node name="LabelBg" type="ColorRect" parent="BitCard"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -28.0
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0, 0, 0, 0.65)
 
 [node name="Label" type="Label" parent="BitCard"]
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
+anchors_preset = 12
 anchor_top = 1.0
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -50.0
-offset_top = -24.0
-offset_right = 50.0
+offset_top = -26.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_font_sizes/font_size = 16
-text = "BIT"
+theme_override_font_sizes/font_size = 14
+text = "⚡ BIT (ÁGIL)"
 horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="ByteCard" type="Control" parent="."]
 layout_mode = 1
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
+anchor_left = 0.5
 anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -148.0
-offset_top = -65.0
-offset_right = -18.0
-offset_bottom = 75.0
+anchor_bottom = 1.0
 grow_horizontal = 0
 grow_vertical = 2
 
 [node name="Portrait" type="TextureRect" parent="ByteCard"]
 layout_mode = 1
-anchors_preset = 10
+anchors_preset = 15
 anchor_right = 1.0
-offset_bottom = 110.0
+anchor_bottom = 1.0
 grow_horizontal = 2
+grow_vertical = 2
 texture = ExtResource("3_pbyte")
 expand_mode = 1
-stretch_mode = 5
+
+[node name="LabelBg" type="ColorRect" parent="ByteCard"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -28.0
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0, 0, 0, 0.65)
 
 [node name="Label" type="Label" parent="ByteCard"]
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
+anchors_preset = 12
 anchor_top = 1.0
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -50.0
-offset_top = -24.0
-offset_right = 50.0
+offset_top = -26.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_font_sizes/font_size = 16
-text = "BYTE"
+theme_override_font_sizes/font_size = 14
+text = "🛡️ BYTE (TANQUE)"
 horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TitleBg" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 26.0
+grow_horizontal = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="TitleLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 26.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 13
+text = "SELECCIONA TU HÉROE"
+horizontal_alignment = 1
+vertical_alignment = 1

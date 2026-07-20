@@ -1,31 +1,42 @@
 extends Control
 
-## CharacterSelection: Controlador UI para la pantalla de selección entre Bit y Byte.
-## Soporta WASD (A/D), Flechas de dirección, Enter, Espacio y gamepad.
+## CharacterSelection: Controlador UI de pantalla completa split-screen para Bit y Byte.
+## Garantiza lectura inmediata de Flechas, WASD (A/D), Espacio y Enter.
 
 @onready var bit_card: Control = $BitCard
 @onready var byte_card: Control = $ByteCard
-@onready var bit_portrait: TextureRect = $BitCard/Portrait
-@onready var byte_portrait: TextureRect = $ByteCard/Portrait
 
 var current_selection: GameManager.CharacterType = GameManager.CharacterType.BIT
+var can_input: bool = true
 
 func _ready() -> void:
+	# Asegurar que ningún nodo hijo intercepte el foco del teclado
+	focus_mode = FOCUS_ALL
+	grab_focus()
 	update_ui_highlight()
 
-func _unhandled_input(event: InputEvent) -> void:
+func _process(_delta: float) -> void:
+	if not can_input:
+		return
+
+	if Input.is_action_just_pressed("ui_left") or Input.is_action_just_pressed("ui_right") \
+	or Input.is_action_just_pressed("move_left") or Input.is_action_just_pressed("move_right"):
+		toggle_selection()
+	elif Input.is_action_just_pressed("ui_accept") or Input.is_action_just_pressed("attack"):
+		confirm_selection()
+
+func _input(event: InputEvent) -> void:
+	if not can_input:
+		return
+
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.keycode:
-			KEY_A, KEY_LEFT, KEY_D, KEY_RIGHT:
+			KEY_LEFT, KEY_RIGHT, KEY_A, KEY_D:
 				toggle_selection()
-			KEY_ENTER, KEY_SPACE, KEY_Z, KEY_X:
+				get_viewport().set_input_as_handled()
+			KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_Z, KEY_X:
 				confirm_selection()
-				return
-
-	if event.is_action_pressed("move_left") or event.is_action_pressed("move_right") or event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right"):
-		toggle_selection()
-	elif event.is_action_pressed("ui_accept") or event.is_action_pressed("attack"):
-		confirm_selection()
+				get_viewport().set_input_as_handled()
 
 func toggle_selection() -> void:
 	if current_selection == GameManager.CharacterType.BIT:
@@ -36,9 +47,14 @@ func toggle_selection() -> void:
 
 func update_ui_highlight() -> void:
 	if bit_card and byte_card:
-		bit_card.modulate = Color(1.0, 1.0, 1.0, 1.0) if current_selection == GameManager.CharacterType.BIT else Color(0.35, 0.35, 0.45, 0.5)
-		byte_card.modulate = Color(1.0, 1.0, 1.0, 1.0) if current_selection == GameManager.CharacterType.BYTE else Color(0.35, 0.35, 0.45, 0.5)
+		if current_selection == GameManager.CharacterType.BIT:
+			bit_card.modulate = Color(1.0, 1.0, 1.0, 1.0)
+			byte_card.modulate = Color(0.25, 0.25, 0.35, 0.5)
+		else:
+			bit_card.modulate = Color(0.25, 0.25, 0.35, 0.5)
+			byte_card.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 func confirm_selection() -> void:
+	can_input = false
 	GameManager.select_character(current_selection)
 	SceneManager.load_level_for_character(current_selection)
