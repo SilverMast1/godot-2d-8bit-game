@@ -73,21 +73,28 @@ func regenerate_energy(delta: float) -> void:
 
 func handle_movement(delta: float) -> void:
 	var direction := Input.get_axis("move_left", "move_right")
-	if direction != 0:
+	if direction == 0.0:
+		if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
+			direction = -1.0
+		elif Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
+			direction = 1.0
+
+	if direction != 0.0:
 		velocity.x = move_toward(velocity.x, direction * speed, acceleration * delta)
 		if sprite:
 			sprite.flip_h = direction < 0
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	var jump_pressed := Input.is_action_just_pressed("jump") or Input.is_key_pressed(KEY_SPACE) or Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP)
+	if jump_pressed and is_on_floor():
 		perform_jump()
 
-	if Input.is_action_just_pressed("attack"):
+	if Input.is_action_just_pressed("attack") or Input.is_key_pressed(KEY_J) or Input.is_key_pressed(KEY_X):
 		trigger_attack()
-	elif Input.is_action_pressed("shield"):
+	elif Input.is_action_pressed("shield") or Input.is_key_pressed(KEY_K) or Input.is_key_pressed(KEY_C):
 		trigger_shield()
-	elif Input.is_action_just_pressed("special_attack"):
+	elif Input.is_action_just_pressed("special_attack") or Input.is_key_pressed(KEY_L) or Input.is_key_pressed(KEY_V):
 		trigger_special_attack()
 
 func perform_jump() -> void:
@@ -127,7 +134,8 @@ func handle_attack_state(delta: float) -> void:
 
 func handle_shield_state(delta: float) -> void:
 	velocity.x = move_toward(velocity.x, 0.0, friction * delta)
-	if not Input.is_action_pressed("shield"):
+	var shield_active := Input.is_action_pressed("shield") or Input.is_key_pressed(KEY_K) or Input.is_key_pressed(KEY_C)
+	if not shield_active:
 		change_state(State.IDLE)
 
 func handle_special_attack_state(delta: float) -> void:
