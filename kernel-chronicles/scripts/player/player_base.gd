@@ -83,7 +83,6 @@ func handle_movement(delta: float) -> void:
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		perform_jump()
 
-	# Triggers de acciones (Ataque, Escudo, Especial)
 	if Input.is_action_just_pressed("attack"):
 		trigger_attack()
 	elif Input.is_action_pressed("shield"):
@@ -105,13 +104,12 @@ func trigger_shield() -> void:
 	perform_shield()
 
 func trigger_special_attack() -> void:
-	if current_energy >= 30.0: # Consume energía para el ataque especial
+	if current_energy >= 30.0:
 		current_energy -= 30.0
 		energy_changed.emit(current_energy, max_energy)
 		change_state(State.SPECIAL_ATTACK)
 		perform_special_attack()
 
-## Métodos polimórficos a sobreescribir por subclases (Bit / Byte)
 func perform_attack() -> void:
 	pass
 
@@ -173,40 +171,28 @@ func update_animations() -> void:
 	if not animation_player:
 		return
 
+	var anim_name: String = ""
 	match current_state:
-		State.IDLE:
-			animation_player.play("idle")
-		State.RUN:
-			animation_player.play("run")
-		State.JUMP:
-			animation_player.play("jump")
-		State.FALL:
-			animation_player.play("fall")
-		State.ATTACK:
-			if animation_player.has_animation("attack"):
-				animation_player.play("attack")
-		State.SHIELD:
-			if animation_player.has_animation("shield"):
-				animation_player.play("shield")
-		State.SPECIAL_ATTACK:
-			if animation_player.has_animation("special_attack"):
-				animation_player.play("special_attack")
-		State.HURT:
-			if animation_player.has_animation("hurt"):
-				animation_player.play("hurt")
-		State.DEAD:
-			if animation_player.has_animation("dead"):
-				animation_player.play("dead")
+		State.IDLE: anim_name = "idle"
+		State.RUN: anim_name = "run"
+		State.JUMP: anim_name = "jump"
+		State.FALL: anim_name = "fall"
+		State.ATTACK: anim_name = "attack"
+		State.SHIELD: anim_name = "shield"
+		State.SPECIAL_ATTACK: anim_name = "special_attack"
+		State.HURT: anim_name = "hurt"
+		State.DEAD: anim_name = "dead"
+
+	if anim_name != "" and animation_player.has_animation(anim_name):
+		animation_player.play(anim_name)
 
 func take_damage(amount: int, knockback_dir: Vector2 = Vector2.ZERO) -> void:
 	if is_invincible or current_state == State.DEAD:
 		return
 
-	# Si está en estado de escudo, absorbe o reduce el daño
 	if current_state == State.SHIELD:
 		var final_damage = int(amount * (1.0 - shield_damage_reduction))
 		if final_damage <= 0:
-			# Bloqueo perfecto (parry/deflect)
 			return
 		amount = final_damage
 
