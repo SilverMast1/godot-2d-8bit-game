@@ -1,14 +1,20 @@
-[gd_scene load_steps=3 format=3 uid="uid://cbitplayer0001"]
+[gd_scene load_steps=4 format=3 uid="uid://cbitplayer0001"]
 
 [ext_resource type="Script" path="res://scripts/player/player_bit.gd" id="1_bit"]
+[ext_resource type="SpriteFrames" path="res://assets/sprites/bit/bit_frames.tres" id="2_bitframes"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bit"]
-size = Vector2(16, 24)
+size = Vector2(20, 32)
 
 [node name="PlayerBit" type="CharacterBody2D"]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_bit")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_bitframes")
+animation = &"idle"
+autoplay = "idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_bit")
